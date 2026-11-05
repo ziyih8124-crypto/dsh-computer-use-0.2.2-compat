@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.3.7 — 2026-10-29
+
+- Add an explicit `method: "keyboard"` text-input option for editors such as Keynote that acknowledge Accessibility writes without applying them. Deliver Unicode characters to the target process with bounded pacing, without clipboard paste or foreground activation when both host policies are `preserve`.
+- 新增明确的 `method: "keyboard"` 文本输入方式，支持 Keynote 等接受 Accessibility 写入却未实际应用的编辑器。逐字符向目标进程发送 Unicode 并保留事件处理间隔；宿主两项焦点策略均为 `preserve` 时，不粘贴剪贴板、不激活前台。
+- Resolve background Select All through verified Accessibility selection and unambiguous enabled Command shortcuts through application menu actions. Preserve targeted key delivery for unsupported controls and shortcuts.
+- 后台全选优先使用经回读验证的 Accessibility 文本选择，唯一且启用的 Command 快捷键通过应用菜单执行；不支持的控件和快捷键继续使用目标进程按键。
+- Add native acceptance for mixed Unicode replacement, background selection, menu shortcuts, actual field values, and continuous foreground monitoring. Verify real Keynote numeric replacement and subtitle entry through DSH model tools while it remains in the background.
+- 增加混合 Unicode 替换、后台选择、菜单快捷键、真实字段值与连续前台监测的原生验收；通过 DSH 模型工具验证真实 Keynote 在后台完成数值替换与副标题输入。
+
+## 0.3.6 — 2026-10-27
+
+- Keep advanced-settings dropdowns within their grid columns, including options with long labels.
+- 修复高级设置下拉框被长选项撑宽、溢出面板的问题。
+- Add a localized GitHub Star link to the settings footer.
+- 在设置页底部增加中英文 GitHub Star 跳转链接。
+
+## 0.3.5 — 2026-10-26
+
+- Keep AX success terminal; require explicit coordinate fallback and the Electron AX capability before selecting a web pointer click. WebKit and native controls retain semantic input.
+- AX 成功后不自动补点；web 鼠标替代路径要求显式坐标降级和 Electron AX 能力，保留 WebKit 与原生控件的语义输入。
+
+- Support DSH `0.2.1-rc.3`: extend every DSH peer range and the declared compatibility matrix, and move the development baseline to `0.2.1-rc.3`. DSH rejects a plugin whose exact prerelease peers do not name the running release, so `0.2.1-rc.2` alone made the plugin show as incompatible and drop out of the profile after that update.
+- 支持 DSH `0.2.1-rc.3`：扩展全部 DSH peer 范围与兼容性声明，并把开发基线升级到 `0.2.1-rc.3`。DSH 要求精确的预发布 peer 必须包含当前运行的版本，只声明 `0.2.1-rc.2` 会让插件在升级后显示为不兼容并从 profile 中掉出。
+- Capture windows without ScreenCaptureKit's default shadow framing, which drew the window content inset and scaled inside an image that already had the window frame's pixel size. Screenshot pixels are now a direct `pixelScale` rendering of the window frame, and the helper fails closed when the captured dimensions do not match it.
+- Add a `screenshot` coordinate space for coordinate actions, so a coordinate read off a screenshot can be passed without dividing by the pixel scale by hand. `computer_observe` reports `screenshot.pixelScale` (pixels per window point), the service converts screenshot pixels to window points before the Agent cursor and native input run, and validates the provider scale against the captured dimensions. Window coordinates that exceed the window frame but fit the screenshot now fail with an error naming the scale and the correct space, instead of clicking at the wrong offset.
+- Mint sensitive-action confirmation tokens over the normalized action, so a confirmed `coordinateSpace: 'screenshot'` action executes instead of failing the one-use token match.
+- Enable Chromium's `AXManualAccessibility` when an observed app publishes a sparse tree, so Electron applications such as DSH expose their window content (buttons, rows, text fields) to Accessibility instead of forcing screenshot-coordinate clicks. The wait is bounded and happens once per app launch.
+- 捕获窗口时关闭 ScreenCaptureKit 默认的阴影取景：此前窗口内容会在与 frame 像素尺寸相同的图像中被内缩并缩放，截图像素无法线性映射到窗口 point。现在截图是窗口 frame 的直接 `pixelScale` 渲染，捕获尺寸不匹配时 helper 会 fail closed。
+- 新增 `screenshot` 坐标空间：从截图上读到的坐标可以直接传入，无需手动除以像素倍率。`computer_observe` 返回 `screenshot.pixelScale`（每个窗口 point 对应的像素数），Service 在 Agent 光标与 native 输入之前把截图像素换算为窗口 point，并用 provider 倍率校验截图尺寸。window 坐标超出窗口 frame 但落在截图范围内时，会报错说明倍率与应使用的坐标空间，而不是偏移后点到错误位置。
+- 敏感动作的确认 token 改为绑定归一化后的 action，已确认的 `coordinateSpace: 'screenshot'` 动作不再因 token 哈希不匹配而失败。
+- 观察到的 app 若 AX 树过于稀疏，会启用 Chromium 的 `AXManualAccessibility`，让 Electron 应用（如 DSH）把窗口内容（按钮、列表行、输入框）暴露给 Accessibility，不再只能靠截图坐标点击。等待有上限，且每次 app 启动只发生一次。
+
 ## 0.3.4 — 2026-10-18
 
 - Support DSH `0.2.1-rc.2`: extend every DSH peer range and the declared compatibility matrix, and move the development baseline to `0.2.1-rc.2` (cordis `4.0.5`, schemastery `3.18.5`).
@@ -19,8 +51,6 @@
 - 已通过六项 macOS 原生测试、Web/Headless 干净压缩包安装及真实工具调用、Web 设置，以及官方 DeepSeek 模型驱动的目标进程点击；模型验收同时校验持久 Session v4 工具结果与截图产物。
 - Update release fixtures for cursor-motion configuration, the DeepSeek Messages endpoint, explicit target CLI selection, and both legacy/wrapped and v4/direct tool-result logs.
 - 更新验收夹具以覆盖光标速度配置、DeepSeek Messages 地址、明确目标 CLI，以及新旧工具结果日志格式。
-
-## [Unreleased]
 
 ## [0.3.2] - 2026-09-10
 

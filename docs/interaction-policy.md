@@ -22,6 +22,15 @@ interaction:
 
 This is an input-routing property, not a consequence of Accessibility permission alone. Accessibility grants semantic UI access; foreground preservation comes from choosing semantic Accessibility operations first and using process/window-targeted fallback instead of the system cursor.
 
+### Background text input
+
+Background Cmd+A uses a verified Accessibility text selection when the focused field supports it. Other Command shortcuts use a unique enabled matching menu action when available; otherwise they remain process-directed key events. Application support varies, so verify the committed value or visible effect.
+
+Set both `focusPolicy: preserve` and `keyboardPolicy: preserve` when the user needs to keep working in another application. For Keynote and rich-text editors that acknowledge AXSelectedText without applying the edit, select `computer_type_text` with `method: keyboard` upfront. This routes Unicode key events to the observed process; it neither activates the application nor reads or replaces the clipboard. `method: auto` retains Accessibility-first behavior. No successful AX write is automatically repeated through the keyboard.
+
+Keyboard text is delivered as Unicode characters with cleared modifier flags, complete down/up pairs, and bounded delivery delays. Verify the target's actual text and committed numeric value. Background acceptance remains application-dependent; a rejected edit is not permission to activate the application.
+
+
 ## Overall design
 
 The action path has five ordered layers:
@@ -69,13 +78,13 @@ These fields do not claim that a target application can never change focus as it
 | scroll | None | Target pid + window | Allowed when `pointerInputPolicy: targeted` |
 | drag | None | Target pid + window | Allowed when `pointerInputPolicy: targeted` |
 
-`pointerInputPolicy: deny` disables coordinate click/fallback, scroll, and drag while leaving semantic Accessibility and process-targeted keyboard paths available. `coordinateSpace: window` (default) resolves coordinates inside the observed window frame; `coordinateSpace: screen` accepts Quartz screen-global points.
+`pointerInputPolicy: deny` disables coordinate click/fallback, scroll, and drag while leaving semantic Accessibility and process-targeted keyboard paths available. `coordinateSpace: window` (default) resolves coordinates in points inside the observed window frame; `coordinateSpace: screen` accepts Quartz screen-global points; `coordinateSpace: screenshot` accepts pixels in the observation screenshot, which are converted through `screenshot.pixelScale` before any input is sent.
 
 ## Critical decisions
 
 ### Host policy is not a Tool argument
 
-The deployment owns `focusPolicy`, `keyboardPolicy`, and `pointerInputPolicy`. `allowCoordinateFallback` says only that `computer_click` may try the host-authorized pointer route after `AXPress` is unavailable. It cannot enable pointer delivery or foreground activation. `computer_perform_action` also treats `AXRaise` as foreground-affecting and rejects it under `preserve`.
+The deployment owns `focusPolicy`, `keyboardPolicy`, and `pointerInputPolicy`. `allowCoordinateFallback` says only that `computer_click` may try the host-authorized pointer route after `AXPress` is unavailable. It cannot enable pointer delivery or foreground activation. `computer_perform_action` also treats `AXRaise` as foreground-affecting and rejects it under `preserve`. For Electron web content whose app supports the writable AXManualAccessibility attribute, explicit allowCoordinateFallback selects the pointer route before attempting AXPress; a successful AXPress is never replayed based on unchanged UI.
 
 ### Accessibility remains the primary route
 
