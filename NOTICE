@@ -1,0 +1,12 @@
+This repository is a modified copy of @anionex/dsh-computer-use 0.3.4.
+
+Upstream: https://github.com/Anionex/dsh-computer-use
+License: MIT (see LICENSE)
+Copyright (c) 2026 anionex
+
+Modifications (2026-11-06):
+- Added DSH 0.2.2-rc.1 to every @deepseek-ai/dsh-* peer range.
+- Added 0.2.2-rc.1 to dsh.compatibility.dsh and dshReleases.
+- Added COMPATIBILITY.md, patches/ and scripts/apply-compat.mjs.
+
+This fork is not affiliated with or endorsed by the upstream author.
